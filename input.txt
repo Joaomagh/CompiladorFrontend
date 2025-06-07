@@ -1,6 +1,14 @@
-(9 - 2) * 3;
-10 > 5;
-2 < 8;
-4 + 2 * 3;
-(10 + 5) < (2 * 5);
+/*
+  Este é um comentário
+  de múltiplas linhas.
+*/
+//comentario de uma linha
+a + b * c;
+
+if (x == 10) {
+  y = a / 2;
+  z = b != c;
+}
+
+2 + 5 * (5 / 7);
 

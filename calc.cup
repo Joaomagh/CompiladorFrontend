@@ -1,70 +1,84 @@
 import java_cup.runtime.*;
 import java.io.*;
 
-/* Código para conectar com seu scanner */
+/* Código para conectar com o scanner */
 parser code {:
     scanner s;
     parser(scanner s){ this.s=s; }
-:}
+
+    public void report_error(String message, Object info) {
+        System.err.println("Erro de Sintaxe: " + message);
+    }
+:};
 
 scan with {: return s.next_token(); :};
 
-/* Terminais (tokens) */
-terminal           SEMI, PLUS, MINUS, TIMES, UMINUS, LPAREN, RPAREN;
-/* NOVOS TERMINAIS */
-terminal           GT, LT;
-terminal Integer   NUMBER;
+/* --- Terminais (Tokens) --- */
+// Operadores
+terminal            PLUS, MINUS, TIMES, DIVIDE, GT, LT, EQ, NEQ;
+terminal            ASSIGN; // Token para o operador '='
+// Delimitadores
+terminal            SEMI, LPAREN, RPAREN, LBRACE, RBRACE;
+// Keywords e Tipos
+terminal            IF;
+terminal String     ID;
+terminal Integer    NUMBER;
 
-/* Não-Terminais */
-non terminal           expr_list;
-non terminal Integer   expr;
+/* --- Não-Terminais --- */
+non terminal        program, stmt_list, stmt;
+non terminal        expr;
 
-/* Precedência de Operadores (seu estilo, com os novos operadores) */
-precedence left GT, LT;      /* Menor precedência */
-precedence left PLUS, MINUS;
-precedence left TIMES;
-precedence left UMINUS;      /* Maior precedência */
+/* --- Precedência de Operadores --- */
+// Define a ordem de avaliação das expressões
+precedence right    ASSIGN; // Atribuição tem precedência baixa e é associativa à direita
+precedence left     EQ, NEQ, GT, LT;
+precedence left     PLUS, MINUS;
+precedence left     TIMES, DIVIDE;
 
-/* A Gramática */
-expr_list ::= expr_list expr:e SEMI
-              {:
-                /* AÇÃO MODIFICADA */
-                System.out.println("Análise sintática concluída com sucesso!");
-                System.out.println("Resultado: " + e + "\n");
-              :}
+/* --- A Gramática --- */
+
+program   ::= stmt_list;
+
+stmt_list ::= stmt_list stmt
               |
-              /* Regra para permitir um arquivo vazio ou a primeira expressão */
+              /* pode ser vazio */
+              ;
+
+stmt      ::= ID:var ASSIGN expr:val SEMI // Regra para validar a atribuição
+              {: System.out.println("Formato de atribuicao VALIDO."); :}
+              |
               expr:e SEMI
-              {:
-                /* AÇÃO MODIFICADA */
-                System.out.println("Análise sintática concluída com sucesso!");
-                System.out.println("Resultado: " + e + "\n");
-              :}
+              {: System.out.println("Formato de expressao VALIDO."); :}
+              |
+              IF LPAREN expr RPAREN stmt
+              {: System.out.println("Formato de 'if' VALIDO."); :}
+              |
+              LBRACE stmt_list RBRACE
+              {: System.out.println("Formato de bloco '{}' VALIDO."); :}
+              |
+              SEMI // Permite ponto e vírgula extra (declaração vazia)
+              {: System.out.println("Formato de declaracao vazia VALIDO."); :}
               ;
 
 expr      ::= expr:e1 PLUS expr:e2
-              {: RESULT = e1 + e2; :}
               |
               expr:e1 MINUS expr:e2
-              {: RESULT = e1 - e2; :}
               |
               expr:e1 TIMES expr:e2
-              {: RESULT = e1 * e2; :}
               |
-              /* NOVAS REGRAS PARA OPERADORES RELACIONAIS */
-              /* Retorna 1 para verdadeiro, 0 para falso */
+              expr:e1 DIVIDE expr:e2
+              |
+              expr:e1 EQ expr:e2
+              |
+              expr:e1 NEQ expr:e2
+              |
               expr:e1 GT expr:e2
-              {: RESULT = (e1 > e2 ? 1 : 0); :}
               |
               expr:e1 LT expr:e2
-              {: RESULT = (e1 < e2 ? 1 : 0); :}
               |
-              MINUS expr:e
-              {: RESULT = -e; :} %prec UMINUS
+              LPAREN expr:e RPAREN {: RESULT = e; :}
               |
-              LPAREN expr:e RPAREN
-              {: RESULT = e; :}
+              ID:i                   {: RESULT = i; :}
               |
-              NUMBER:n
-              {: RESULT = n; :}
+              NUMBER:n               {: RESULT = n; :}
               ;
