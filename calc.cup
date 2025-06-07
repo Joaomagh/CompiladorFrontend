@@ -1,0 +1,70 @@
+import java_cup.runtime.*;
+import java.io.*;
+
+/* Código para conectar com seu scanner */
+parser code {:
+    scanner s;
+    parser(scanner s){ this.s=s; }
+:}
+
+scan with {: return s.next_token(); :};
+
+/* Terminais (tokens) */
+terminal           SEMI, PLUS, MINUS, TIMES, UMINUS, LPAREN, RPAREN;
+/* NOVOS TERMINAIS */
+terminal           GT, LT;
+terminal Integer   NUMBER;
+
+/* Não-Terminais */
+non terminal           expr_list;
+non terminal Integer   expr;
+
+/* Precedência de Operadores (seu estilo, com os novos operadores) */
+precedence left GT, LT;      /* Menor precedência */
+precedence left PLUS, MINUS;
+precedence left TIMES;
+precedence left UMINUS;      /* Maior precedência */
+
+/* A Gramática */
+expr_list ::= expr_list expr:e SEMI
+              {:
+                /* AÇÃO MODIFICADA */
+                System.out.println("Análise sintática concluída com sucesso!");
+                System.out.println("Resultado: " + e + "\n");
+              :}
+              |
+              /* Regra para permitir um arquivo vazio ou a primeira expressão */
+              expr:e SEMI
+              {:
+                /* AÇÃO MODIFICADA */
+                System.out.println("Análise sintática concluída com sucesso!");
+                System.out.println("Resultado: " + e + "\n");
+              :}
+              ;
+
+expr      ::= expr:e1 PLUS expr:e2
+              {: RESULT = e1 + e2; :}
+              |
+              expr:e1 MINUS expr:e2
+              {: RESULT = e1 - e2; :}
+              |
+              expr:e1 TIMES expr:e2
+              {: RESULT = e1 * e2; :}
+              |
+              /* NOVAS REGRAS PARA OPERADORES RELACIONAIS */
+              /* Retorna 1 para verdadeiro, 0 para falso */
+              expr:e1 GT expr:e2
+              {: RESULT = (e1 > e2 ? 1 : 0); :}
+              |
+              expr:e1 LT expr:e2
+              {: RESULT = (e1 < e2 ? 1 : 0); :}
+              |
+              MINUS expr:e
+              {: RESULT = -e; :} %prec UMINUS
+              |
+              LPAREN expr:e RPAREN
+              {: RESULT = e; :}
+              |
+              NUMBER:n
+              {: RESULT = n; :}
+              ;
