@@ -1,4 +1,4 @@
-# Compilador Frontend
+"# Compilador Frontend
 
 ## Visão Geral do Projeto
 
@@ -56,24 +56,12 @@ Para rodar o projeto no Visual Studio Code, siga os passos abaixo:
 
 2. **Configuração do projeto:**
    - Clone o repositório para sua máquina.
-   - Gere o analisador léxico com o JFlex:
-     ```bash
-     jflex calc.flex
-     ```
-   - Gere o analisador sintático com o CUP:
-     ```bash
-     java -jar java-cup-11b.jar calc.cup
-     ```
-   - Compile os arquivos `.java` gerados junto com o restante do código-fonte:
-     ```bash
-     javac *.java
-     ```
 
 3. **Executando o compilador:**
    - Crie ou edite o arquivo `input.txt` com o código-fonte a ser analisado.
    - Execute a classe principal:
-     ```bash
-     java Main
+     ```
+      Main.java
      ```
    - Observe as mensagens de erro ou sucesso da análise no terminal.
 
